@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SKalibro</title>
+
+<style>
+body{font-family:Arial;margin:0;background:#f5f7fb;}
+header{background:#0f172a;color:white;padding:15px;font-size:20px;}
+.card{background:white;margin:10px;padding:10px;border-radius:10px;}
+.ok{color:green;font-weight:bold;}
+.due{color:orange;font-weight:bold;}
+.overdue{color:red;font-weight:bold;}
+</style>
+</head>
+
+<body>
+
+<header>📏 SKalibro System</header>
+
+<div id="list"></div>
+
+<script>
+function status(date){
+let d=new Date(date);
+let now=new Date();
+let diff=(d-now)/86400000;
+
+if(diff<0) return "overdue";
+if(diff<30) return "due";
+return "ok";
+}
+
+fetch("http://127.0.0.1:8000/api/instruments")
+.then(r=>r.json())
+.then(data=>{
+let list=document.getElementById("list");
+
+data.forEach(i=>{
+let last=i.calibrations?.at(-1);
+
+list.innerHTML+=`
+<div class="card">
+<b>${i.description}</b><br>
+Inv: ${i.invNumber}<br>
+Location: ${i.location}<br>
+Status: <span class="${last?status(last.nextDate):"overdue"}">
+${last?status(last.nextDate).toUpperCase():"OVERDUE"}
+</span>
+</div>`;
+});
+});
+</script>
+
+</body>
+</html>
